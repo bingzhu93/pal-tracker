@@ -2,6 +2,7 @@ package test.pivotal.pal.trackerapi;
 
 import com.jayway.jsonpath.DocumentContext;
 import io.pivotal.pal.tracker.PalTrackerApplication;
+import org.junit.Before;
 import org.junit.Test;
 import org.junit.runner.RunWith;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -27,6 +28,14 @@ public class HealthApiTest {
     @LocalServerPort
     private String port;
 
+    @Before
+    public void setUp() throws Exception {
+        RestTemplateBuilder builder = new RestTemplateBuilder()
+                .rootUri("http://localhost:" + port)
+                .basicAuthorization("user", "password");
+        restTemplate = new TestRestTemplate(builder);
+    }
+
     @Test
     public void healthTest() {
         ResponseEntity<String> response = this.restTemplate.getForEntity("/health", String.class);
@@ -39,10 +48,7 @@ public class HealthApiTest {
         assertThat(healthJson.read("$.status", String.class)).isEqualTo("UP");
         assertThat(healthJson.read("$.db.status", String.class)).isEqualTo("UP");
         assertThat(healthJson.read("$.diskSpace.status", String.class)).isEqualTo("UP");
-        RestTemplateBuilder builder = new RestTemplateBuilder()
-                .rootUri("http://localhost:" + port)
-                .basicAuthorization("user", "password");
-        restTemplate = new TestRestTemplate(builder);
+
 
     }
 }
